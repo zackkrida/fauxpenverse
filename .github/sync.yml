@@ -7,7 +7,7 @@ group:
   - repos: |
       WordPress/fauxpenverse-catalog
       WordPress/fauxpenverse-api
-      WordPress/fauxpenverse-frontend
+      zackkrida/fauxpenverse
       WordPress/fauxpenverse-browser-extension
       WordPress/fauxpenverse-infrastructure
     files:
@@ -34,7 +34,7 @@ group:
         dest: .github/PULL_REQUEST_TEMPLATE.md
   # Frontend repositories
   - repos: |
-      WordPress/fauxpenverse-frontend
+      zackkrida/fauxpenverse
       WordPress/fauxpenverse-browser-extension
     files:
       - source: .github/CODEOWNERS_FRONTEND

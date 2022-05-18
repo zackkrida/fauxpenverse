@@ -174,7 +174,7 @@ jobs:
 
   gh-pages:
     name: PR Storybook and Tailwind Preview
-    if: github.repository == 'WordPress/fauxpenverse-frontend' && github.ref != 'refs/heads/main'
+    if: github.repository == 'zackkrida/fauxpenverse' && github.ref != 'refs/heads/main'
     runs-on: ubuntu-latest
 
     steps:
