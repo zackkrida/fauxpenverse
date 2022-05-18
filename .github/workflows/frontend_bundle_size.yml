@@ -3,22 +3,22 @@ name: Compressed Size
 on:
   pull_request:
     paths:
-      - "**.ts"
-      - "**.js"
-      - "**.vue"
-      - "**.css"
+      - "frontend/**.ts"
+      - "frontend/**.js"
+      - "frontend/**.vue"
+      - "frontend/**.css"
       # Changes to any dependency
-      - "pnpm-lock.yaml"
+      - "frontend/pnpm-lock.yaml"
       # This file configures ESLint. Changes could affect the outcome.
-      - "**.eslint*"
+      - "frontend/**.eslint*"
       # This file configures Prettier. Changes could affect the outcome.
-      - "**.prettier*"
+      - "frontend/**.prettier*"
       # This file configures TypeScript. Changes could affect the outcome.
-      - "**.tsconfig*"
+      - "frontend/**.tsconfig*"
       # This file configures Nuxt (and therefore the build). Changes could affect the outcome.
-      - "nuxt.config.ts"
+      - "frontend/nuxt.config.ts"
       # This file configures Tailwind and could affect the style outcome.
-      - "tailwind.config.js"
+      - "frontend/tailwind.config.js"
       # Changes to this workflow file should always verify the changes are successful.
       - ".github/workflows/bundle_size.yml"
 

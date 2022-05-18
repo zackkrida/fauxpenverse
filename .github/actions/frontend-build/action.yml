@@ -1,9 +1,9 @@
 # this is a reusable workflow that will be called by the
-# push_staging and push_production workflows
+# frontend_push_staging and frontend_push_production workflows
 # more info: https://docs.github.com/en/actions/learn-github-actions/reusing-workflows
 
-name: fauxpenverse/build
-description: build a docker image that can be used in different environments
+name: fauxpenverse/frontend-build
+description: build a frontend docker image that can be used in different environments
 
 inputs:
   is_production:
