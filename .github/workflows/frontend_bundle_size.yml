@@ -38,7 +38,7 @@ jobs:
     steps:
       - uses: actions/checkout@v2
 
-      - uses: ./.github/actions/setup-node-env
+      - uses: ./.github/actions/frontend-setup-node-env
 
       - uses: preactjs/compressed-size-action@2.5.0
         with:

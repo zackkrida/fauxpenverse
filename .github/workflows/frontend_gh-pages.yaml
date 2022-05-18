@@ -12,7 +12,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v2
 
-      - uses: ./.github/actions/setup-node-env
+      - uses: ./.github/actions/frontend-setup-node-env
 
       - name: Fetch translation files
         run: pnpm i18n

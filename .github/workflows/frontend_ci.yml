@@ -18,7 +18,7 @@ jobs:
     steps:
       - uses: actions/checkout@v2
 
-      - uses: ./.github/actions/setup-node-env
+      - uses: ./.github/actions/frontend-setup-node-env
 
       - name: Check types
         run: pnpm types
@@ -30,7 +30,7 @@ jobs:
     steps:
       - uses: actions/checkout@v2
 
-      - uses: ./.github/actions/setup-node-env
+      - uses: ./.github/actions/frontend-setup-node-env
 
       - name: Lint with ESLint and Prettier
         run: pnpm lint
@@ -42,7 +42,7 @@ jobs:
     steps:
       - uses: actions/checkout@v2
 
-      - uses: ./.github/actions/setup-node-env
+      - uses: ./.github/actions/frontend-setup-node-env
 
       - name: Check extracted strings
         run: pnpm i18n:check
@@ -58,7 +58,7 @@ jobs:
     steps:
       - uses: actions/checkout@v2
 
-      - uses: ./.github/actions/setup-node-env
+      - uses: ./.github/actions/frontend-setup-node-env
 
       - name: Run unit tests
         run: pnpm test:unit
@@ -95,7 +95,7 @@ jobs:
     steps:
       - uses: actions/checkout@v2
 
-      - uses: ./.github/actions/setup-node-env
+      - uses: ./.github/actions/frontend-setup-node-env
 
       - name: Run Nuxt Playwright tests
         run: pnpm test:playwright
@@ -113,7 +113,7 @@ jobs:
     steps:
       - uses: actions/checkout@v2
 
-      - uses: ./.github/actions/setup-node-env
+      - uses: ./.github/actions/frontend-setup-node-env
 
       - name: Run Storybook Playwright tests
         run: pnpm test:storybook
@@ -155,7 +155,7 @@ jobs:
     steps:
       - uses: actions/checkout@v2
 
-      - uses: ./.github/actions/setup-node-env
+      - uses: ./.github/actions/frontend-setup-node-env
 
       - name: Run Storybook smoke-test
         run: pnpm storybook:smoke
@@ -167,7 +167,7 @@ jobs:
     steps:
       - uses: actions/checkout@v2
 
-      - uses: ./.github/actions/setup-node-env
+      - uses: ./.github/actions/frontend-setup-node-env
 
       - name: Run build
         run: pnpm build
@@ -204,7 +204,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v2
 
-      - uses: ./.github/actions/setup-node-env
+      - uses: ./.github/actions/frontend-setup-node-env
 
       - name: Fetch translation files
         run: pnpm i18n
