@@ -12,6 +12,7 @@ runs:
     - uses: pnpm/action-setup@v2.2.1
 
     - name: Cache pnpm modules
+      working-directory: ./frontend
       uses: actions/cache@v2
       with:
         path: ~/.local/share/pnpm/store
@@ -20,19 +21,20 @@ runs:
           ${{ runner.os }}-
 
     - uses: actions/setup-node@v2.5.1
-      working-directory: ./frontend
       with:
         node-version: 16
         cache: pnpm
         cache-dependency-path: |
-          pnpm-lock.yaml
-          .npmrc
+          ./frontend/pnpm-lock.yaml
+          ./frontend/.npmrc
 
     - name: Install
+      working-directory: ./frontend
       if: inputs.install
       shell: bash
       run: "pnpm install"
 
     - name: Get locales
+      working-directory: ./frontend
       shell: bash
       run: "pnpm i18n"
