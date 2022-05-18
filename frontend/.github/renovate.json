@@ -1,0 +1,23 @@
+{
+  "extends": ["config:base", ":preserveSemverRanges", "schedule:monthly"],
+  "labels": [
+    "dependencies",
+    "💻 aspect: code",
+    "🧰 goal: internal improvement",
+    "🟩 priority: low"
+  ],
+  "js": {
+    "labels": ["🟨 tech: javascript"]
+  },
+  "docker": {
+    "labels": ["🐳 tech: docker"]
+  },
+  "ignorePaths": [
+    ".github/workflows/draft_release.yml",
+    ".github/workflows/label_new_pr.yml",
+    ".github/workflows/new_isssues.yml",
+    ".github/workflows/new_prs.yml",
+    ".github/workflows/pr_label_check.yml",
+    ".github/workflows/pr_ping.yml"
+  ]
+}
