@@ -14,18 +14,18 @@ TBD
 
 ## Rationale
 
-Production Openverse is deployed across several services, each with their own unique parameters for optimal performance and stability. We have little to no visibility into the performance of most of these services aside from Sentry.
+Production fauxpenverse is deployed across several services, each with their own unique parameters for optimal performance and stability. We have little to no visibility into the performance of most of these services aside from Sentry.
 
-* Airflow - Has some Slack alerting for DAG failures/successes and some built in things we can gather basic performance information from.
-* API - Has Sentry error monitoring but zero performance monitoring.
-* Nuxt - Has Sentry error monitoring but zero performance monitoring.
-* Thumbnail proxy - Has zero monitoring
-* Postgres - Has zero monitoring aside from some CloudWatch system metrics being tracked
-* Elasticsearch - Same as Postgres as far as I'm aware
+- Airflow - Has some Slack alerting for DAG failures/successes and some built in things we can gather basic performance information from.
+- API - Has Sentry error monitoring but zero performance monitoring.
+- Nuxt - Has Sentry error monitoring but zero performance monitoring.
+- Thumbnail proxy - Has zero monitoring
+- Postgres - Has zero monitoring aside from some CloudWatch system metrics being tracked
+- Elasticsearch - Same as Postgres as far as I'm aware
 
 Without visibility into our various services stability and performance we have few or even zero ways to know whether we're introducing performance or stability degradations with new releases (nor whether we're improving things). If our services go down, we'll learn this because a user or contributor notices and lets the team know. This is not ideal.
 
-As the production instances of the Openverse API start getting used for Jetpack and even WordPress core integrations soon and in the near future we will likely see a tremendous increase in traffic. Without visibility into our services we will be significantly hindered when debugging production performance and stability issues.
+As the production instances of the fauxpenverse API start getting used for Jetpack and even WordPress core integrations soon and in the near future we will likely see a tremendous increase in traffic. Without visibility into our services we will be significantly hindered when debugging production performance and stability issues.
 
 Without measuring _current_ performance, we can't make decisions about how to improve performance that aren't couched in anything better than educated guesses. This is not a situation we want to be in long term. We also have a sense that our services are reasonably speedy at the moment, but we don't know exactly how speedy or what kind of outliers exist. Sometimes we see the API slow down to over 2 seconds per-request. How often does that happen? Is it a 99th percentile or more like 60th (i.e., closer to the average experience).
 
@@ -39,9 +39,9 @@ Grafana is a data visualization tool that supports building complex dashboards. 
 
 The Prometheus and Grafana services encompass the following key features that are important for maintaining the health and stability of our services:
 
-* Metrics gathering
-* Dashboard creation for making it quick and easy to understand the current state of our service health
-* Anomaly detection and alarming so that if things get weird, we'll know about it as soon as possible
+- Metrics gathering
+- Dashboard creation for making it quick and easy to understand the current state of our service health
+- Anomaly detection and alarming so that if things get weird, we'll know about it as soon as possible
 
 Additionally, both are free software. Prometheus is Apache 2 licensed and Grafana is AGPL-3.0. Both are actively developed in the open with heavy community involvement. They are also both widely deployed with lots of blog posts discussing configuration, use cases, and troubleshooting.
 
@@ -57,10 +57,10 @@ There are three key aspects of the application services I think we should monito
 
 ### System level metrics
 
-* CPU
-* RAM
-* Storage
-* Processes/threads
+- CPU
+- RAM
+- Storage
+- Processes/threads
 
 These would be gathered from Airflow, API, Thumbnail proxy, Postgres and Nuxt. These metrics need to be retrieved from AWS. I _think_ that [this page describes how to do that](https://docs.aws.amazon.com/AmazonCloudWatch/latest/monitoring/CloudWatch-Agent-PrometheusEC2.html) but AWS's language around this stuff is so cryptic to me I can't say with confidence it's the right documentation page for it.
 
@@ -70,15 +70,15 @@ It would also be nice if we could integrate Cloudflare data into Grafana so that
 
 These are _per service_ when available. The Thumbnail proxy and Postgres, for example, may not be able to implement all or any of these.
 
-* Overall requests per second
-* Per-route requests per second
-* Per-route timings per response code
-* Per-route response code rate
-* Overall response code rate
-* DB transaction times
-* DB transaction count
-* DB query count
-* External request count and times
+- Overall requests per second
+- Per-route requests per second
+- Per-route timings per response code
+- Per-route response code rate
+- Overall response code rate
+- DB transaction times
+- DB transaction count
+- DB query count
+- External request count and times
 
 ## How we will gather metrics
 
@@ -92,9 +92,9 @@ The rest of our services all have relevant exporters available, either official 
 
 It's hard to get into specifics about this, but there are a some scenarios up-front that we can anticipate wanting monitors for.
 
-* Sustained periods of time (60 seconds?) where `count_req_total == count_5xx_total` or `count_req_total >= (count_5xx_total / threshold)`
-    * Note, queries are rarely that intutive to write and have at least two moving parts that dictate how the alarm works, the query and then the alarm condition.
-* Each view has a version of the above relative to request frequency. Views with lower overall requests per second will require longer windows of time before alerting. We could also configure something like `view_request_count > threshold && view_5xx_count == view_request_count` to filter out cases where only a small number of requests have occurred against a view that happened to fail; though this is risky. I think in those cases we'd not want an _alarm_ _per se_ but would still want to be closely monitoring these types of occurrences through some low-priority alert and active dashboard viewing.
+- Sustained periods of time (60 seconds?) where `count_req_total == count_5xx_total` or `count_req_total >= (count_5xx_total / threshold)`
+  - Note, queries are rarely that intutive to write and have at least two moving parts that dictate how the alarm works, the query and then the alarm condition.
+- Each view has a version of the above relative to request frequency. Views with lower overall requests per second will require longer windows of time before alerting. We could also configure something like `view_request_count > threshold && view_5xx_count == view_request_count` to filter out cases where only a small number of requests have occurred against a view that happened to fail; though this is risky. I think in those cases we'd not want an _alarm_ _per se_ but would still want to be closely monitoring these types of occurrences through some low-priority alert and active dashboard viewing.
 
 Additionally, we'll eventually be able to incorporate anomaly monitors. Anomaly monitoring boils down to determining whether there are any statistically significant periods of time where any given metric is an unexpected standard deviation away from seasonal-mean[^2] for the metric. For example, if we normally mean 1200 2xx response codes per second, with a standard deviation of 100 and our 2xx response codes drop to 1000 per second for a sustained period of time, then we'd want an alarm to be raised.
 
@@ -102,8 +102,8 @@ Note that those numbers above are _not_ realistic, they're just simpler for expl
 
 Generally, anomaly monitors have two main variables that need tweaking to get right:
 
-* How long before alarming; that is, how long should the metric be outside the expected trend before we consider it to be an anomaly?
-* How far outside the trend; that is, how many standard deviations away from the center/mean does it need to be for us to consider it anomalous?
+- How long before alarming; that is, how long should the metric be outside the expected trend before we consider it to be an anomaly?
+- How far outside the trend; that is, how many standard deviations away from the center/mean does it need to be for us to consider it anomalous?
 
 Our ability to fine tune monitors based on these two variables goes up with the more traffic we have, simply because with more data you can create better statistical trend models with which to define anomalous behavior against. If we have views that get relatively few requests per second then it will be difficult to create anomaly monitors for them and we'll have to rely on binary monitors for them.
 
@@ -111,7 +111,7 @@ There are additional derived statistical information for each metric: percentile
 
 ## Isolating the monitoring backend
 
-I considered that it might be nice to isolate the monitoring backend integration so that the various Openverse services didn't rely on any specific implementation. This would be nice (especially for alternative deployments of Openverse, which would be cool to be able to support) but is too heavy a lift for us and given we can isolate the integrations via configuration and external modules it wouldn't be worth our time at the moment.
+I considered that it might be nice to isolate the monitoring backend integration so that the various fauxpenverse services didn't rely on any specific implementation. This would be nice (especially for alternative deployments of fauxpenverse, which would be cool to be able to support) but is too heavy a lift for us and given we can isolate the integrations via configuration and external modules it wouldn't be worth our time at the moment.
 
 ## Relevant integrations
 
@@ -121,17 +121,17 @@ Here's the list of integrations we'll want to incorporate into Prometheus and Gr
 
 These are for pulling metrics into Prometheus from various services. This would all be in addition to writing and integration for Nuxt and deploying `django-prometheus` for the API (Airflow should be automatically covered by the exporter listed below).
 
-* Elasticsearch exporter: https://github.com/prometheus-community/elasticsearch_exporter
-* Postgres exporter: https://github.com/prometheus-community/postgres_exporter
-* AWS ECS exporter: https://github.com/slok/ecs-exporter
-* Cloudflare exporter: https://gitlab.com/gitlab-org/cloudflare_exporter
-* AWS CloudWatch exporter: https://github.com/prometheus/cloudwatch_exporter
-    * This one is interesting. I think we'd define system metrics to gather in CloudWatch and then export them into Prometheus. Hopefully this wouldn't incur additional costs to what we're already doing with CloudWatch.
-* Alternative to the CloudWatch exporter is to implement the Node exporter: https://github.com/prometheus/node_exporter
-    * This has the added benefit of being portable across cloud providers vs CloudWatch being AWS services only.
-    * Does not cover ECS in an obvious way; could we run the node exporter in the container? Would that produce meaningful information?
-* Additional alternative to CloudWatch exporter is EC2 exporter: https://github.com/jmal98/ec2-exporter
-* Airflow exporter: https://github.com/epoch8/airflow-exporter
+- Elasticsearch exporter: https://github.com/prometheus-community/elasticsearch_exporter
+- Postgres exporter: https://github.com/prometheus-community/postgres_exporter
+- AWS ECS exporter: https://github.com/slok/ecs-exporter
+- Cloudflare exporter: https://gitlab.com/gitlab-org/cloudflare_exporter
+- AWS CloudWatch exporter: https://github.com/prometheus/cloudwatch_exporter
+  - This one is interesting. I think we'd define system metrics to gather in CloudWatch and then export them into Prometheus. Hopefully this wouldn't incur additional costs to what we're already doing with CloudWatch.
+- Alternative to the CloudWatch exporter is to implement the Node exporter: https://github.com/prometheus/node_exporter
+  - This has the added benefit of being portable across cloud providers vs CloudWatch being AWS services only.
+  - Does not cover ECS in an obvious way; could we run the node exporter in the container? Would that produce meaningful information?
+- Additional alternative to CloudWatch exporter is EC2 exporter: https://github.com/jmal98/ec2-exporter
+- Airflow exporter: https://github.com/epoch8/airflow-exporter
 
 ### Grafana alerting integrations
 
@@ -153,15 +153,15 @@ The general purpose Webhook integration is useful for a future where we migrate 
 
 Runbooks are the expected steps for addressing a particular alarm. As I mentioned elsewhere, alarms should be actionable. If they're not actionable then they're just noise and should be demoted to a warning until they're more accurate (less false positives). The _actions_ you take for any given alarm are directed by an alarm's accompanying runbook.
 
-All alarms should have a relevant runbook linked in the alarm body. Ideally these would just be flat Markdown files but it'd be best if they could be hosted in the Openverse handbook on WordPress.org as well for redundancy and accessibility.
+All alarms should have a relevant runbook linked in the alarm body. Ideally these would just be flat Markdown files but it'd be best if they could be hosted in the fauxpenverse handbook on WordPress.org as well for redundancy and accessibility.
 
 ### Grafana data sources
 
-* Prometheus: https://grafana.com/docs/grafana/latest/datasources/prometheus/
-* Elasticsearch: https://grafana.com/docs/grafana/latest/datasources/elasticsearch/
-    * Note: not for visualizing system stats, those will come from Prometheus. This would be for querying the index. Totally optional.
-* Postgres: https://grafana.com/docs/grafana/latest/datasources/postgres/
-    * Just if we wanted to be able to visualize certain query results. Could eventually be relevant for general analytics.
+- Prometheus: https://grafana.com/docs/grafana/latest/datasources/prometheus/
+- Elasticsearch: https://grafana.com/docs/grafana/latest/datasources/elasticsearch/
+  - Note: not for visualizing system stats, those will come from Prometheus. This would be for querying the index. Totally optional.
+- Postgres: https://grafana.com/docs/grafana/latest/datasources/postgres/
+  - Just if we wanted to be able to visualize certain query results. Could eventually be relevant for general analytics.
 
 ## Configuration and infrastructure (local and cloud)
 
@@ -176,13 +176,13 @@ This does have the effect of centralizing a ton of decisions about how to organi
 On the other hand, this massively complicates local development of the monitoring infrastructure and leaves us with two options:
 
 1. We can choose one of the existing repositories to put a docker-compose stack into that would spin up Prometheus and Grafana as needed for the entire local stack. The catalog, API, and frontend repositories would need to be configured such that that Prometheus stack is able to discover them on the local network.
-2. We can place a `docker-compose.monitoring.yml` in the WordPress/openverse repository and optionally pull the file down when certain commands are run to set up monitoring for each individual piece of the stack.
+2. We can place a `docker-compose.monitoring.yml` in the WordPress/fauxpenverse repository and optionally pull the file down when certain commands are run to set up monitoring for each individual piece of the stack.
 
 The second one seems more complicated to me. For one, if you're running all three repositories locally you'd end up with three separate Prometheus and Grafana instances to manage and configure.
 
 The first one also seems complicated but I believe it's also easier. Remember that Prometheus is the source of truth for the configuration, so we wouldn't have to spread out the knowledge about where Prometheus lives in all our services. As long as our services are configured to serve Prometheus the appropriate data on consistent HTTP endpoints, then any Prometheus instance anywhere can consume them. That does mean that some configuration will be spread in the other direction: that is, rather than storing information about Prometheus in each service, each service's information will be stored in Prometheus. This seems like an appropriate compromise.
 
-I'm not sure where the best place to put the monitoring docker-compose is. I think I'd like to propose putting it in WordPress/openverse under a `monitoring` directory that would include the `docker-compose.yml` as well as documentation about how to configure monitors, our own best practices, etc. It doesn't make sense to me for us to just pick one of the three application repositories to put it in. The monitoring stack also fits in with the "meta"/"overview" nature of the WordPress/openverse repository.
+I'm not sure where the best place to put the monitoring docker-compose is. I think I'd like to propose putting it in WordPress/fauxpenverse under a `monitoring` directory that would include the `docker-compose.yml` as well as documentation about how to configure monitors, our own best practices, etc. It doesn't make sense to me for us to just pick one of the three application repositories to put it in. The monitoring stack also fits in with the "meta"/"overview" nature of the WordPress/fauxpenverse repository.
 
 The major difference between the production stack and the local stack will be the lack of a dedicated Postgres instance locally. Grafana will happily run on SQLite locally and there's no reason to complicate that for us locally (especially because we already have several other Postgres instances running locally elsewhere in the stack). We can follow the standard `docker-compose.overrides.yml` pattern we have followed to make changes in our stack between local and production. This will mostly involve passing environment variables to Grafana and Prometheus to configure them for production.
 
@@ -197,13 +197,13 @@ One of the goals I'd like to achieve with the local infrastructure is to make it
 1. Log into the staging Prometheus and Grafana instances
 2. Develop your monitors and dashboards
 3. Export them from staging and save them into the appropriate `monitoring/configurations/{prometheus,grafana}` folder
-    * For Grafana, you can save new dashboards in the `monitoring/grafana/dashboards` folder in the Grafana JSON format. Datasources should be configured in the `monitoring/grafana/provisioning/datasources/datasources.yml`. It is unnecessary to change the `dashboards/dashboards.yml` configuration as the proposed configuration automatically picks up new JSON files.
-    * For Prometheus, make the necessary changes to the `prometheus.yml.template`, run `just mkpromconf [environment]`. Any rules (if we end up using them) can be places directly into the `rules.d` and they will be automatically picked up by Prometheus the next time it is restarted.
+   - For Grafana, you can save new dashboards in the `monitoring/grafana/dashboards` folder in the Grafana JSON format. Datasources should be configured in the `monitoring/grafana/provisioning/datasources/datasources.yml`. It is unnecessary to change the `dashboards/dashboards.yml` configuration as the proposed configuration automatically picks up new JSON files.
+   - For Prometheus, make the necessary changes to the `prometheus.yml.template`, run `just mkpromconf [environment]`. Any rules (if we end up using them) can be places directly into the `rules.d` and they will be automatically picked up by Prometheus the next time it is restarted.
 4. Run the local monitoring stack to ensure that the saved configurations in a brand new deployment match the expected configurations from staging.
-    * This may require exercising the local service a bit to check that metrics appear as expected in the dashboards... can be difficult with small amounts of data though.
+   - This may require exercising the local service a bit to check that metrics appear as expected in the dashboards... can be difficult with small amounts of data though.
 5. Deploy them to production via terraform or some other method to update the running Prometheus and Grafana instances with the latest configurations
-    * Terraform has [providers for uploading dashboard configurations to  Grafana](https://registry.terraform.io/providers/grafana/grafana/latest)
-    * With Prometheus, generate the new configuration file per environment using `just mkpromconf [environment]` and upload the configuration to the environment then restart Prometheus.
+   - Terraform has [providers for uploading dashboard configurations to Grafana](https://registry.terraform.io/providers/grafana/grafana/latest)
+   - With Prometheus, generate the new configuration file per environment using `just mkpromconf [environment]` and upload the configuration to the environment then restart Prometheus.
 
 ## DevEx
 
@@ -226,16 +226,20 @@ I like the idea of having fully open Prometheus and Grafana dashboards that don'
 Do we want to use Prometheus for alerting or Grafana?
 
 Pros for Prometheus:
+
 - It is possible and potentially even trivial to provision alerts based on configuration files
 
 Cons for Prometheus:
+
 - It is much harder to configure and automatically provision changes to Prometheus's configuration
 - The UI for building them does not exist so I'm not sure what the best way to write new rules is other than via yaml files which will be harder for folks to contribute to given we're not all full-time devops people with tons of time to learn how to do this without fiddling around with visual helper tools
 
 Pros for Grafana:
+
 - The UI for building them is nice
 
 Cons for Grafana:
+
 - There's no way to export or provision them so the only way to add rules is through the UI (there's no JSON version of the form either). Moving rules across environments would be hard... to be fair, developing rules with anything except production data is also very difficult (lots of guessing) so maybe this isn't a problem.
 
 I'd rather use Grafana provided we back up the database of alert configurations. If we do that then not having them in the code is hopefully less of a disaster.
@@ -256,32 +260,32 @@ Prometheus is configured via a single `prometheus.yml` file. I've created a Pyth
 
 ## Overview of proposed changes
 
-* Use the existing Grafana instance in production
-* Use ECS to deploy the following services in production:
-    * Prometheus
-    * GNU Mailman
-* Use a new, small RDS instance for Grafana's Postgres DB.
-* Rely on Prometheus primarily as a metrics aggregator and time series database. Do not use it for rule and alarm configuration.
-* Rely on Grafana for visbility and alarming upstream from Prometheus.
-* Create separate alarm streams per service in Mailman and aggregate all alarms into a Slack channel for extra visibility and redundancy.
-* Use `django-prometheus` library to add the Prometheus `/metrics` endpoint to the API
-* Expose Grafana dashboards publicly _a la_ [Wikimedia](https://grafana.wikimedia.org/?orgId=1) and other FOSS projects
-* Create `@openverse/nuxt-module-prometheus` to create a pluggable Prometheus monitoring integration for Nuxt based on existing (but incomplete) projects
-* Integrate Prometheus exporters for the rest of our services and infrastructure
-* Deploy Runbooks for all alarms to the Openverse handbook on WordPress.org
+- Use the existing Grafana instance in production
+- Use ECS to deploy the following services in production:
+  - Prometheus
+  - GNU Mailman
+- Use a new, small RDS instance for Grafana's Postgres DB.
+- Rely on Prometheus primarily as a metrics aggregator and time series database. Do not use it for rule and alarm configuration.
+- Rely on Grafana for visbility and alarming upstream from Prometheus.
+- Create separate alarm streams per service in Mailman and aggregate all alarms into a Slack channel for extra visibility and redundancy.
+- Use `django-prometheus` library to add the Prometheus `/metrics` endpoint to the API
+- Expose Grafana dashboards publicly _a la_ [Wikimedia](https://grafana.wikimedia.org/?orgId=1) and other FOSS projects
+- Create `@fauxpenverse/nuxt-module-prometheus` to create a pluggable Prometheus monitoring integration for Nuxt based on existing (but incomplete) projects
+- Integrate Prometheus exporters for the rest of our services and infrastructure
+- Deploy Runbooks for all alarms to the fauxpenverse handbook on WordPress.org
 
 ## Implementation Plan
 
 1. Merge the example local stack implementation from this PR and update any of the things we agree to change during the RFC period.
-    * Additionally configure pre-commit linting for prometheus configurations
+   - Additionally configure pre-commit linting for prometheus configurations
 1. Add `django_prometheus` to the API to expose the `/metrics` endpoint consumed by Prometheus.
-    * As part of this we need to figure out if we want to hide the metrics endpoint behind authentication. See `Outstanding questions/Authentication` above.
-    * Configure Prometheus to be able to scrape the relevant environment's `/metrics` endpoint (base this off the local configuration)
-    * Deploy the API and confirm that the metrics are able to be scraped at the new endpoint.
+   - As part of this we need to figure out if we want to hide the metrics endpoint behind authentication. See `Outstanding questions/Authentication` above.
+   - Configure Prometheus to be able to scrape the relevant environment's `/metrics` endpoint (base this off the local configuration)
+   - Deploy the API and confirm that the metrics are able to be scraped at the new endpoint.
 1. Create the same `/metrics` endpoint for Nuxt using the [Node.js client library](https://github.com/siimon/prom-client)
-    * This will be more work as we'll have to write our own middlware for it.
-    * There are some existing Nuxt Prometheus modules like [this one](https://github.com/franckaragao/nuxt-prometheus-module) but they're not maintained and far more basic than what we actually want to get. We could fork those and create our own `@openverse/nuxt-prometheus-module` or something with better defaults more akin to the level of visibility that the `django-prometheus` module provides for Django.
-    * Configure Prometheus to be able to scrape the `/metrics` endpoint and update configurations for each environment.
+   - This will be more work as we'll have to write our own middlware for it.
+   - There are some existing Nuxt Prometheus modules like [this one](https://github.com/franckaragao/nuxt-prometheus-module) but they're not maintained and far more basic than what we actually want to get. We could fork those and create our own `@fauxpenverse/nuxt-prometheus-module` or something with better defaults more akin to the level of visibility that the `django-prometheus` module provides for Django.
+   - Configure Prometheus to be able to scrape the `/metrics` endpoint and update configurations for each environment.
 1. Continue the above for each service.
 1. Let metrics gather for around 3-6 weeks then begin identifying areas we can create our first alerts around. Once we reach that milestone, create issues for creating alarms and writing runbooks for them.
 
@@ -289,7 +293,7 @@ Prometheus is configured via a single `prometheus.yml` file. I've created a Pyth
 
 [^0]: While not necessary, we may consider switching to asyncio Django for this reason, so we can fire event submission tasks without blocking the response. For example, in the middleware pseudo code above it would be nice to be able to send the response back before incrementing the view status count. Alternatively we could add Celery for this purpose as well.
 [^1]: In Django we'll use the view name, the class or function name that handles the view. This should include the absolute module path to ensure disambiguation between views. In Nuxt there isn't the same concept, so we'll just need to rely on the path. Replace intermediate slashes with double underscores, (e.g., `/search/images` turns into `search__images`).
-[^2]: The "seasonal-mean" is a mean that incorporates daily, weekly or monthly seasonality. For example, the mean Friday at 1200 UTC is treated as distinct from the mean on Saturday at 1200 UTC. Browsing activity changes during the week. Most services see reduced traffic over the weekends. I'm not sure if that'll be the case for Openverse but implementing this is usually "free" and comes with any standard
+[^2]: The "seasonal-mean" is a mean that incorporates daily, weekly or monthly seasonality. For example, the mean Friday at 1200 UTC is treated as distinct from the mean on Saturday at 1200 UTC. Browsing activity changes during the week. Most services see reduced traffic over the weekends. I'm not sure if that'll be the case for fauxpenverse but implementing this is usually "free" and comes with any standard
 [^3]: This could be wrong but I couldn't find any other way to do it that didn't require a script that made HTTP requests. Even the grafana-cli isn't capable of re-evaluating the provisioning scripts.
 
 # Appendices
@@ -298,17 +302,17 @@ Prometheus is configured via a single `prometheus.yml` file. I've created a Pyth
 
 Below are links to relevant documentation in Prometheus and Grafana. Reviewing these is not necessary for reviewing the RFC. I've included them to help implementers have a good starting point for finding things as sometimes even knowing what terms to search for can be a hurdle.
 
-* Prometheus rules unit tests: https://prometheus.io/docs/prometheus/latest/configuration/unit_testing_rules/
-* Prometheus metric types: https://prometheus.io/docs/concepts/metric_types/
-* Prometheus anomaly detection: https://prometheus.io/blog/2015/06/18/practical-anomaly-detection/
-* Prometheus query functions: https://prometheus.io/docs/prometheus/latest/querying/functions/
-* Prometheus range vectors: https://prometheus.io/docs/prometheus/latest/querying/basics/#range-vector-selectors
-* Prometheus naming best practices: https://prometheus.io/docs/practices/naming/
-* Prometheus official and unofficial client libraries: https://prometheus.io/docs/instrumenting/clientlibs/
-* Adding a datasource to Grafana: https://grafana.com/docs/grafana/latest/datasources/add-a-data-source/
-* Grafana dashboard best practices: https://grafana.com/docs/grafana/latest/best-practices/best-practices-for-creating-dashboards/
-* Histograms and heatmaps in Grafana: https://grafana.com/docs/grafana/latest/basics/intro-histograms/
-* Grafana glossary (super helpful!): https://grafana.com/docs/grafana/latest/basics/glossary/
+- Prometheus rules unit tests: https://prometheus.io/docs/prometheus/latest/configuration/unit_testing_rules/
+- Prometheus metric types: https://prometheus.io/docs/concepts/metric_types/
+- Prometheus anomaly detection: https://prometheus.io/blog/2015/06/18/practical-anomaly-detection/
+- Prometheus query functions: https://prometheus.io/docs/prometheus/latest/querying/functions/
+- Prometheus range vectors: https://prometheus.io/docs/prometheus/latest/querying/basics/#range-vector-selectors
+- Prometheus naming best practices: https://prometheus.io/docs/practices/naming/
+- Prometheus official and unofficial client libraries: https://prometheus.io/docs/instrumenting/clientlibs/
+- Adding a datasource to Grafana: https://grafana.com/docs/grafana/latest/datasources/add-a-data-source/
+- Grafana dashboard best practices: https://grafana.com/docs/grafana/latest/best-practices/best-practices-for-creating-dashboards/
+- Histograms and heatmaps in Grafana: https://grafana.com/docs/grafana/latest/basics/intro-histograms/
+- Grafana glossary (super helpful!): https://grafana.com/docs/grafana/latest/basics/glossary/
 
 ## Appendix B: Alternative technologies
 
@@ -332,7 +336,7 @@ We don't have anyone on the team who has dedicated AWS knowledge.
 
 AWS's documentation for CloudWatch is downright cryptic. There are decent overviews about the _concepts_, but implementing new monitors in Python or JavaScript might as well be esoteric knowledge. The libraries are extremely low-level for what they're doing and require you to manage batched event reporting by hand, something other client libraries for competing services like Prometheu's clients or statsd for Graphite handle out of the box.
 
-Additionally, it is a proprietary service. We would not be able to get our metrics out of AWS and if we decided to move away from AWS this would be a huge hurdle to overcome if we invest into it. Likewise, anyone else trying to deploy Openverse anywhere other than AWS would have to do work to tear out the CloudWatch stuff as there are no alternative backends for it the way there are for S3. More on this below.
+Additionally, it is a proprietary service. We would not be able to get our metrics out of AWS and if we decided to move away from AWS this would be a huge hurdle to overcome if we invest into it. Likewise, anyone else trying to deploy fauxpenverse anywhere other than AWS would have to do work to tear out the CloudWatch stuff as there are no alternative backends for it the way there are for S3. More on this below.
 
 ### Other extremely low level monitoring tools
 
@@ -342,7 +346,7 @@ There are also some very low level [Linux daemon based time-series databases](ht
 
 [DataDog](https://www.datadoghq.com/) is a SaaS offerring that runs an open source stack mixed with some proprietary magic. Prometheus and Grafana together very much resemble DataDog, even down to the UI.
 
-DataDog is fantastic. But it also comes at a higher cost than self-hosted Prometheus and Grafana. It is also ultimately a closed system. They provide ways for getting your data out and the client libraries for sending events used are the same (or very similar) to the ones for Graphite and Prometheus but it would still put work on alternative Openverse instances to make significant changes to the monitoring backend.
+DataDog is fantastic. But it also comes at a higher cost than self-hosted Prometheus and Grafana. It is also ultimately a closed system. They provide ways for getting your data out and the client libraries for sending events used are the same (or very similar) to the ones for Graphite and Prometheus but it would still put work on alternative fauxpenverse instances to make significant changes to the monitoring backend.
 
 DataDog does have very good documentation and holds your hand a _lot_ when it comes to setting up monitors and dashboards. If I had to choose a hosted proprietary solution I'd go with DataDog over AWS. However, I would not choose it over hosted Prometheus and Grafana if given the choice.
 

@@ -1,8 +1,8 @@
 org: WordPress
 repos:
-  main: openverse
-  catalog: openverse-catalog
-  api: openverse-api
-  frontend: openverse-frontend
-  extension: openverse-browser-extension
-  infra: openverse-infrastructure
+  main: fauxpenverse
+  catalog: fauxpenverse-catalog
+  api: fauxpenverse-api
+  frontend: fauxpenverse-frontend
+  extension: fauxpenverse-browser-extension
+  infra: fauxpenverse-infrastructure

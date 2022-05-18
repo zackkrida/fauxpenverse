@@ -1,5 +1,5 @@
 name: Weekly updates
-# ℹ️ https://github.com/WordPress/openverse/blob/main/.github/GITHUB.md#project-automation
+# ℹ️ https://github.com/zackkrida/fauxpenverse/blob/main/.github/GITHUB.md#project-automation
 
 on:
   workflow_dispatch:

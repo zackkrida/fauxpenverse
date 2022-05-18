@@ -73,12 +73,14 @@ the user (if status is switchable), the feature can have two states.
 - **on**
 
   When either
+
   - status is "enabled"
   - status is "switchable" and preference is "on"
 
 - **off**
 
   When either
+
   - status is "disabled"
   - status is "switchable" and preference is "off"
 
@@ -92,20 +94,22 @@ Conf files are JSON files that define the feature flags. Here is a sample of wha
 
 ```json5
 {
-  "features": {
-    "feature_name_1": { // feature flag name
-      "status": "enabled", // enabled | disabled | switchable
-      "description": "Feature 1 does ...", // what the feature does
-      "data": { // optional, any data you want to store related to this feature
-        "release_date": "2023-01-01"
-      }
+  features: {
+    feature_name_1: {
+      // feature flag name
+      status: "enabled", // enabled | disabled | switchable
+      description: "Feature 1 does ...", // what the feature does
+      data: {
+        // optional, any data you want to store related to this feature
+        release_date: "2023-01-01",
+      },
     },
-    "feature_name_2": {
-      "status": "switchable",
-      "default": "on", // whether the feature is opt-in or opt-out
-      "description": "Feature 2 does ...",
-    }
-  }
+    feature_name_2: {
+      status: "switchable",
+      default: "on", // whether the feature is opt-in or opt-out
+      description: "Feature 2 does ...",
+    },
+  },
 }
 ```
 
@@ -117,10 +121,10 @@ For flags that are set to switchable in the conf files, we use the state in the 
 
 ```json5
 {
-  "features": {
-    "feature_name_1": "on",
-    "feature_name_2": "off"
-  }
+  features: {
+    feature_name_1: "on",
+    feature_name_2: "off",
+  },
 }
 ```
 
@@ -159,13 +163,13 @@ It internally intefaces with the utility to evaluate whether the component is re
 
 ### Drawbacks
 
- This implementation has the main drawback of leaving `v-flag` directives around the codebase that are equivalent `v-if="true"` when the feature has been permanently enabled. Similarly a script utility `isFeatureEnabled` that always evaluates to `true` is another a no-op.
+This implementation has the main drawback of leaving `v-flag` directives around the codebase that are equivalent `v-if="true"` when the feature has been permanently enabled. Similarly a script utility `isFeatureEnabled` that always evaluates to `true` is another a no-op.
 
 We can periodically clean them up or create tickets to remove them after a feature is completely and irreversibly live. This is important to prevent cruft from accumulating in in the codebase.
 
 ## Proof-of-concept
 
-[Link to `WordPress/openverse-frontend` PR](https://github.com/WordPress/openverse-frontend/pull/1270)
+[Link to `WordPress/fauxpenverse-frontend` PR](https://github.com/zackkrida/fauxpenverse-frontend/pull/1270)
 
 ## Disqualified alternatives
 
@@ -280,7 +284,7 @@ Nesting flags will use hacks like artificial separators e.g. `FF_PARENT__CHILD`.
 ##### Pros
 
 1. Even more effortless to set up.
-1. We've done this before for the embedded mode, [_remember_](https://github.com/WordPress/openverse-frontend/pull/65)?
+1. We've done this before for the embedded mode, [_remember_](https://github.com/zackkrida/fauxpenverse-frontend/pull/65)?
 1. Testing is easy because tests can append the right flag param to the URL.
 
 ##### Cons

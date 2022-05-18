@@ -1,6 +1,6 @@
 /**
  * Generate a weekly report of closed issues and merged PRs for each of the
- * Openverse repos.
+ * fauxpenverse repos.
  */
 
 const fs = require('fs')
@@ -92,7 +92,7 @@ const getRepoHtml = ({ repo, mergedPrs, closedIssues }) => {
 }
 
 // Create post on Make site
-const MAKE_SITE_API = 'https://make.wordpress.org/openverse/wp-json/wp/v2'
+const MAKE_SITE_API = 'https://make.wordpress.org/fauxpenverse/wp-json/wp/v2'
 const token = Buffer.from(`${username}:${password}`).toString('base64')
 /**
  * Post the activities to the Make site.
@@ -112,14 +112,14 @@ const postActivities = (activities) => {
       Authorization: `Basic ${token}`,
     },
     body: JSON.stringify({
-      title: `A week in Openverse: ${startDate} - ${endDate}`,
-      slug: `last-week-openverse-${startDate}-${endDate}`,
-      excerpt: `The developments in Openverse between ${startDate} and ${endDate}`,
+      title: `A week in fauxpenverse: ${startDate} - ${endDate}`,
+      slug: `last-week-fauxpenverse-${startDate}-${endDate}`,
+      excerpt: `The developments in fauxpenverse between ${startDate} and ${endDate}`,
       content: report,
       status: 'publish',
       tags: [
-        3, // openverse
-        5, // week-in-openverse
+        3, // fauxpenverse
+        5, // week-in-fauxpenverse
       ],
     }),
   })

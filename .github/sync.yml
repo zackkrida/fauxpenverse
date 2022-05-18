@@ -3,13 +3,13 @@
 # Workflow: Meta file sync
 
 group:
-  # Openverse
+  # fauxpenverse
   - repos: |
-      WordPress/openverse-catalog
-      WordPress/openverse-api
-      WordPress/openverse-frontend
-      WordPress/openverse-browser-extension
-      WordPress/openverse-infrastructure
+      WordPress/fauxpenverse-catalog
+      WordPress/fauxpenverse-api
+      WordPress/fauxpenverse-frontend
+      WordPress/fauxpenverse-browser-extension
+      WordPress/fauxpenverse-infrastructure
     files:
       # Synced workflows
       - source: .github/workflows/new_issues.yml
@@ -34,16 +34,16 @@ group:
         dest: .github/PULL_REQUEST_TEMPLATE.md
   # Frontend repositories
   - repos: |
-      WordPress/openverse-frontend
-      WordPress/openverse-browser-extension
+      WordPress/fauxpenverse-frontend
+      WordPress/fauxpenverse-browser-extension
     files:
       - source: .github/CODEOWNERS_FRONTEND
         dest: .github/CODEOWNERS
   # Backend repositories
   - repos: |
-      WordPress/openverse-catalog
-      WordPress/openverse-api
-      WordPress/openverse-infrastructure
+      WordPress/fauxpenverse-catalog
+      WordPress/fauxpenverse-api
+      WordPress/fauxpenverse-infrastructure
     files:
       - source: .github/CODEOWNERS
         dest: .github/CODEOWNERS

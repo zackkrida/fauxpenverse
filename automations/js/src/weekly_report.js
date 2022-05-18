@@ -22,10 +22,10 @@ if (!date) {
 
 // data
 const repos = [
-  'openverse',
-  'openverse-frontend',
-  'openverse-api',
-  'openverse-catalog',
+  'fauxpenverse',
+  'fauxpenverse-frontend',
+  'fauxpenverse-api',
+  'fauxpenverse-catalog',
 ]
 
 // internals

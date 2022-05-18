@@ -3,7 +3,7 @@
 - [x] @obulat
 - [x] @zackkrida
 
-**Milestone:** https://github.com/WordPress/openverse-frontend/milestone/11
+**Milestone:** https://github.com/zackkrida/fauxpenverse-frontend/milestone/11
 
 ## Rationale
 
@@ -21,7 +21,7 @@ To quote from https://gdpr.eu/cookies:
 
 I believe the cookie I am proposing we add in this RFC falls under this and we would not need a consent banner for it.
 
-We should however add an explanatory page for our cookie usage; potentially this could just be a general "Privacy" page that links out to the WP.org privacy policy and explains Openverse specific things.
+We should however add an explanatory page for our cookie usage; potentially this could just be a general "Privacy" page that links out to the WP.org privacy policy and explains fauxpenverse specific things.
 
 ## Cookie shape
 
@@ -56,7 +56,7 @@ interface UIStateCookie {
 ## Implementation plan
 
 - [ ] `useUiStateCookie()` -> Returns an existing cookie or creates a new one and saves it. It should be a `reactive` object with custom `set` handlers to update the stored cookie value. Creating a new one should sniff the UA for the correct default value for `breakpoint`.
-    - Additionally: `useSyncUiStateCookieBreakpoint()` -> Called by `useUiStateCookie` to sync the breakpoint upon resizing.
+  - Additionally: `useSyncUiStateCookieBreakpoint()` -> Called by `useUiStateCookie` to sync the breakpoint upon resizing.
 - [ ] Update `useMediaQuery` to use the ui state cookie to deduce a default for `shouldPassInSSR` based on the breakpoint value.
 - [ ] Update the translation banner dismissal to set the cookie property and read from it to determine whether to show.
 - [ ] Update filter sidebar opening to set the cookie property and read from it to determine whether to show.

@@ -1,5 +1,5 @@
 name: Label sync
-# ℹ️ https://github.com/WordPress/openverse/blob/main/.github/GITHUB.md#label-sync
+# ℹ️ https://github.com/zackkrida/fauxpenverse/blob/main/.github/GITHUB.md#label-sync
 
 on:
   workflow_dispatch:

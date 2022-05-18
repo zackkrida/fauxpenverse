@@ -1,6 +1,6 @@
 # Automations
 
-This directory contains automations for managing the Openverse repositories and Developer Experience.
+This directory contains automations for managing the fauxpenverse repositories and Developer Experience.
 
 ## Requirements
 

@@ -1,6 +1,6 @@
 # RFC: Visual regression testing
 
-A proposal to integrate visual regression testing into the Openverse frontend's automated testing suite.
+A proposal to integrate visual regression testing into the fauxpenverse frontend's automated testing suite.
 
 ## Reviewers
 
@@ -9,11 +9,11 @@ A proposal to integrate visual regression testing into the Openverse frontend's 
 
 ## Milestone
 
-https://github.com/WordPress/openverse-frontend/milestone/7
+https://github.com/zackkrida/fauxpenverse-frontend/milestone/7
 
 ## Exploratory code
 
-https://github.com/WordPress/openverse-frontend/pull/899
+https://github.com/zackkrida/fauxpenverse-frontend/pull/899
 
 ## Background
 
@@ -21,12 +21,12 @@ https://github.com/WordPress/openverse-frontend/pull/899
 
 Visual regression testing is a testing strategy that diffs two screenshots reports a failure if there are significant differences between the two.
 
-Playwright is capable of generating and diffing screenshots of the running application  via the [screenshot function](https://playwright.dev/docs/screenshots) available on the `Page` and `Locator` objects. These can be used with `toMatchSnapshot` like so:
+Playwright is capable of generating and diffing screenshots of the running application via the [screenshot function](https://playwright.dev/docs/screenshots) available on the `Page` and `Locator` objects. These can be used with `toMatchSnapshot` like so:
 
 ```ts
 expect(await page.screenshot()).toMatchSnapshot({
-  name: 'fullpage',
-})
+  name: "fullpage",
+});
 ```
 
 Playwright uses the popular [pixelmatch](https://github.com/mapbox/pixelmatch) library to diff the screenshots. Example diffs [can be found here](https://github.com/mapbox/pixelmatch#example-output). Playwright on its own does not appear capable of outputting the visual-diff image. An alternative to this is covered below.
@@ -67,7 +67,7 @@ Playwrights's built in image snapshot-diffing capability works fine for the most
 
 **Important caveat to this section!**
 
-I ended up trying out `jest-image-snapshot` in https://github.com/WordPress/openverse-frontend/pull/899 but running the matcher fails on some error about `_counters` being undefined. It looks like Playwright, while it uses the jest `expect` library, does not support the same matcher context as Jest proper does. To use `jest-image-snapshot` we might have to switch to `jest-playwright` which would be less than ideal as it's [recommended against by the Playwright project](https://playwright.dev/docs/test-runners#jest--jasmine) (though for what reason exactly I'm really not sure).
+I ended up trying out `jest-image-snapshot` in https://github.com/zackkrida/fauxpenverse-frontend/pull/899 but running the matcher fails on some error about `_counters` being undefined. It looks like Playwright, while it uses the jest `expect` library, does not support the same matcher context as Jest proper does. To use `jest-image-snapshot` we might have to switch to `jest-playwright` which would be less than ideal as it's [recommended against by the Playwright project](https://playwright.dev/docs/test-runners#jest--jasmine) (though for what reason exactly I'm really not sure).
 
 We can still _try_ to find a workaround for this, but if it ends up being too much trouble I'd say just leave it out of the final roadmap for this feature and we can use the built-in Playwright tool. Playwright will output the before and after images for failed snapshot comparisons into a `test-results` folder at the top level of the project, so I figure the worst case scenario is that we could write a little script to walk through that directory and run `pixelmatch` on them to get the diff image.
 
@@ -90,6 +90,7 @@ To avoid this, other visual regression testing libraries like BackstopJS support
 I was about to figure out "a way" of doing it. Here's what I came up with:
 
 1. Create a `./bin/visual-regression.js` file with the following:
+
 ```js
 /**
  * Run this as a node script so that we can retrieve the `process.cwd`
@@ -100,37 +101,37 @@ I was about to figure out "a way" of doing it. Here's what I came up with:
  * versions expected by the `playwright` binary installed locally
  * matches the versions pre-installed in the container.
  */
-const { spawnSync } = require('child_process')
-const fs = require('fs')
-const path = require('path')
-const yaml = require('yaml')
+const { spawnSync } = require("child_process");
+const fs = require("fs");
+const path = require("path");
+const yaml = require("yaml");
 
-const pnpmLock = yaml.parse(
-  String(fs.readFileSync(path.resolve(process.cwd(), 'pnpm-lock.yaml')))
-)
+const pnpmLock = yaml.parse(String(fs.readFileSync(path.resolve(process.cwd(), "pnpm-lock.yaml"))));
 
-const playwrightVersion = pnpmLock.devDependencies['@playwright/test']
+const playwrightVersion = pnpmLock.devDependencies["@playwright/test"];
 
 const args = [
-  'run',
-  '--rm',
-  '-it',
-  '--mount',
+  "run",
+  "--rm",
+  "-it",
+  "--mount",
   `type=bind,source=${process.cwd()},target=/src`,
-  '--add-host=host.docker.internal:host-gateway', // This is necessary to make `host.docker.internal` work on Linux. Does it break the command for other OSs?
+  "--add-host=host.docker.internal:host-gateway", // This is necessary to make `host.docker.internal` work on Linux. Does it break the command for other OSs?
   `mcr.microsoft.com/playwright:v${playwrightVersion}-focal`,
-  '/src/bin/visual-regression.sh',
-]
+  "/src/bin/visual-regression.sh",
+];
 
-if (process.argv.includes('-u')) {
-  args.push('-u')
+if (process.argv.includes("-u")) {
+  args.push("-u");
 }
 
-spawnSync('docker', args, {
-  stdio: 'inherit',
-})
+spawnSync("docker", args, {
+  stdio: "inherit",
+});
 ```
+
 2. Create a `./bin/visual-regression.sh` file containing the following (don't forget to `chmod +x` it):
+
 ```sh
 #!/bin/bash
 # This script is meant to run inside the playwright docker container, hence the assumed `/src` directory
@@ -139,7 +140,9 @@ cd /src
 # Use npm to avoid having to install pnpm inside the container, it doesn't matter in this case
 npm run test:visual-regression:local -- $1
 ```
+
 3. Add two new package.json scripts:
+
 ```json
 "test:visual-regression": "node ./bin/visual-regression.js",
 "test:visual-regression:local": "playwright test -c ./test/visual-regression"
@@ -172,116 +175,124 @@ For language direction, the best way to do this is to just test in the default l
 For breakpoints, it will be tedious to have to add the iteration for each test case, so I've written a utility that we can use to make this easier. This utility can also be used for our regular end-to-end tests:
 
 ```ts
-import { test, PlaywrightTestArgs, TestInfo } from '@playwright/test'
+import { test, PlaywrightTestArgs, TestInfo } from "@playwright/test";
 
-import { Breakpoints, SCREEN_SIZES } from '../../../src/constants/screens'
+import { Breakpoints, SCREEN_SIZES } from "../../../src/constants/screens";
 
-export const testEachBreakpoint = (title: string, testCb: (breakpoint: Breakpoints, args: PlaywrightTestArgs,testInfo: TestInfo) => Promise<void>) => {
+export const testEachBreakpoint = (
+  title: string,
+  testCb: (breakpoint: Breakpoints, args: PlaywrightTestArgs, testInfo: TestInfo) => Promise<void>
+) => {
   SCREEN_SIZES.forEach((screenWidth, breakpoint) => {
     test.describe(`screen at breakpoint ${breakpoint} with width ${screenWidth}`, () => {
       test(title, async ({ page, context, request }, testInfo) => {
-        await page.setViewportSize({ width: screenWidth, height: 700 })
-        await testCb(breakpoint, { page, context, request }, testInfo)
-      })
-    })
-  })
-}
+        await page.setViewportSize({ width: screenWidth, height: 700 });
+        await testCb(breakpoint, { page, context, request }, testInfo);
+      });
+    });
+  });
+};
 ```
 
 It's then used in the test like so:
 
 ```ts
-test.describe('homepage snapshots', () => {
+test.describe("homepage snapshots", () => {
   // Repeat below for `rtl`
-  test.describe('ltr', () => {
+  test.describe("ltr", () => {
     test.beforeEach(async ({ page }) => {
-      await page.goto('/')
-    })
+      await page.goto("/");
+    });
 
-    testEachBreakpoint('full page', async (breakpoint, { page }) => {
-      await deleteImageCarousel(page)
+    testEachBreakpoint("full page", async (breakpoint, { page }) => {
+      await deleteImageCarousel(page);
 
       expect(await page.screenshot()).toMatchSnapshot({
         name: `index-ltr-${breakpoint}`,
-      })
-    })
-  })
-})
+      });
+    });
+  });
+});
 ```
 
 ## Recommended tooling
 
-* Continue using Playwright to manipulate the browser and use it's `screenshot` function to generate screenshots.
-* _Try_ to use `jest-image-snapshot` to save and diff screenshots.
-* Run snapshot tests inside a docker container to avoid cross-platform rendering differences.
-* Write a GitHub action to be run [once daily using the `on.schedule` feature](https://docs.github.com/en/actions/using-workflows/workflow-syntax-for-github-actions#onschedule) to automatically remove snapshots from the repository history older than a month old.
-* Use GitHub's PR review UI to review visual diffs of snapshots.
-* Write Playwright scripts using TypeScript
-    * Note: TypeScript linting and general infrastructure has already been set up in https://github.com/WordPress/openverse-frontend/issues/921 and https://github.com/WordPress/openverse-frontend/pull/917.
+- Continue using Playwright to manipulate the browser and use it's `screenshot` function to generate screenshots.
+- _Try_ to use `jest-image-snapshot` to save and diff screenshots.
+- Run snapshot tests inside a docker container to avoid cross-platform rendering differences.
+- Write a GitHub action to be run [once daily using the `on.schedule` feature](https://docs.github.com/en/actions/using-workflows/workflow-syntax-for-github-actions#onschedule) to automatically remove snapshots from the repository history older than a month old.
+- Use GitHub's PR review UI to review visual diffs of snapshots.
+- Write Playwright scripts using TypeScript
+  - Note: TypeScript linting and general infrastructure has already been set up in https://github.com/zackkrida/fauxpenverse-frontend/issues/921 and https://github.com/zackkrida/fauxpenverse-frontend/pull/917.
 
 ## Implementation plan
 
 Once the final version of this RFC is approved, a milestone with issues for each individual checkbox listed below will be created.
 
 - [ ] Configure local visual regression testing:
-    - Create a `playwright.config.ts` file in the new directory with the following code:
-    ```ts
-    // /test/visual-regression/playwright.config.ts
-    import { PlaywrightTestConfig } from '@playwright/test'
 
-    export default {
-        testDir: '.',
-        use: {
-            baseURL: 'http://localhost:8443',
-        },
-        timeout: 60 * 1000,
-    } as PlaywrightTestConfig
+  - Create a `playwright.config.ts` file in the new directory with the following code:
+
+  ```ts
+  // /test/visual-regression/playwright.config.ts
+  import { PlaywrightTestConfig } from "@playwright/test";
+
+  export default {
+    testDir: ".",
+    use: {
+      baseURL: "http://localhost:8443",
+    },
+    timeout: 60 * 1000,
+  } as PlaywrightTestConfig;
+  ```
+
+  - Add the two `bin/visual-regression.{sh,js}` files described in the "Cross platform rendering" section above.
+  - Add three new scripts to the root `package.json` (**Note: in light of https://github.com/zackkrida/fauxpenverse-frontend/pull/881 these scripts will also need to be updated to use talkback to mock API calls during e2e!**):
+
+  ```
+  "test:visual-regression": "node ./bin/visual-regression.js",
+  "test:visual-regression:local": "playwright test -c test/visual-regression",
+  "ci:visual-regression": "start-server-and-test run-server http://localhost:8443 test:visual-regression"
+  ```
+
+  - Install and configure `jest-image-snapshot` and `@types/jest-image-snapshot`:
+    - Note: It may be necessary to add additional TypeScript typings in the root level `typings` folder for TypeScript to know that `expect()` includes the `toMatchImageSnapshot` function. Follow the existing examples extending `@types/nuxt` to extend the `@playwright/test` library's `Matchers` interface.
+    - Additional note: As mentioned in the section about `jest-image-snapshot` above it may not be possible to get this library to play nicely with Playwright's specific `expect.extend` context. I'd say time box trying to get this to work to an hour or so and then just move on to the next thing. There's an additional task at the end of this list for writing the `pixelmatch` diff generator script in case we need it.
+    - **Extra important note:** This library might not work with Playwright, in which case we'll just leave this out; there's a contingency plan for this case below.
+  - Write basic tests for the homepage; a full-page snapshot for `ltr` and `rtl` versions of the page using `testEachBreakpoint` should do just as a start and proof-of-concept.
+    - Note: It will be necessary to remove the featured images from the page before taking the snapshot or the diff will fail 2/3 of the time due to them being different. The following code can be used to accomplish this:
+    ```ts
+    const deleteImageCarousel = async (page: Page) => {
+      const element = await page.$('[data-testid="image-carousel"]');
+      await element.evaluate((node) => node.remove());
+      element.dispose();
+    };
     ```
-    - Add the two `bin/visual-regression.{sh,js}` files described in the "Cross platform rendering" section above.
-    - Add three new scripts to the root `package.json` (**Note: in light of https://github.com/WordPress/openverse-frontend/pull/881 these scripts will also need to be updated to use talkback to mock API calls during e2e!**):
-    ```
-    "test:visual-regression": "node ./bin/visual-regression.js",
-    "test:visual-regression:local": "playwright test -c test/visual-regression",
-    "ci:visual-regression": "start-server-and-test run-server http://localhost:8443 test:visual-regression"
-    ```
-    - Install and configure `jest-image-snapshot` and `@types/jest-image-snapshot`:
-        - Note: It may be necessary to add additional TypeScript typings in the root level `typings` folder for TypeScript to know that `expect()` includes the `toMatchImageSnapshot` function. Follow the existing examples extending `@types/nuxt` to extend the `@playwright/test` library's `Matchers` interface.
-        - Additional note: As mentioned in the section about `jest-image-snapshot` above it may not be possible to get this library to play nicely with Playwright's specific `expect.extend` context. I'd say time box trying to get this to work to an hour or so and then just move on to the next thing. There's an additional task at the end of this list for writing the `pixelmatch` diff generator script in case we need it.
-        - **Extra important note:** This library might not work with Playwright, in which case we'll just leave this out; there's a contingency plan for this case below.
-    - Write basic tests for the homepage; a full-page snapshot for `ltr` and `rtl` versions of the page using `testEachBreakpoint` should do just as a start and proof-of-concept.
-        - Note: It will be necessary to remove the featured images from the page before taking the snapshot or the diff will fail 2/3 of the time due to them being different. The following code can be used to accomplish this:
-        ```ts
-        const deleteImageCarousel = async (page: Page) => {
-            const element = await page.$('[data-testid="image-carousel"]')
-            await element.evaluate((node) => node.remove())
-            element.dispose()
-        }
-        ```
-    - Create a `README.md` in the `visual-regression` directory with basic instructions for how to run and write visual regression tests. In particular mention our usage of `jest-image-snapshot` instead of the built in snapshot matcher.
-- [ ] Complete https://github.com/WordPress/openverse-frontend/issues/890 if it isn't already done.
+  - Create a `README.md` in the `visual-regression` directory with basic instructions for how to run and write visual regression tests. In particular mention our usage of `jest-image-snapshot` instead of the built in snapshot matcher.
+
+- [ ] Complete https://github.com/zackkrida/fauxpenverse-frontend/issues/890 if it isn't already done.
 - [ ] Configure CI to run visual regression tests.
-    - Write a new workflow to run the visual regression tests. You should be able to copy the existing e2e workflow and replace the call to `ci:e2e` to `ci:visual-regression`.
+  - Write a new workflow to run the visual regression tests. You should be able to copy the existing e2e workflow and replace the call to `ci:e2e` to `ci:visual-regression`.
 - [ ] Configure Storybook visual regression tests.
-    - Copy the existing `visual-regression` folder's configuration and create a new test folder called `storybook-visual-regression`.
-    - Create corresponding local and CI scripts in `package.json` to run these tests, using `storybook` instead of `run-server` and use the correct port for Storybook
-    - Write basic state and variation tests for each button variant (or some other straight component with similar easy to configure props).
-    - This will also establish a pattern for writing e2e tests against Storybook.
-    - Copy the visual regression test CI and swap the appropriate scripts to run the Storybook ones instead.
-        - If possible, create a shared action that can be re-used between all the Playwright based test workflows.
+  - Copy the existing `visual-regression` folder's configuration and create a new test folder called `storybook-visual-regression`.
+  - Create corresponding local and CI scripts in `package.json` to run these tests, using `storybook` instead of `run-server` and use the correct port for Storybook
+  - Write basic state and variation tests for each button variant (or some other straight component with similar easy to configure props).
+  - This will also establish a pattern for writing e2e tests against Storybook.
+  - Copy the visual regression test CI and swap the appropriate scripts to run the Storybook ones instead.
+    - If possible, create a shared action that can be re-used between all the Playwright based test workflows.
 - [ ] Write a script to generate `pixelmatch` diffs from failed test results in the `test-results` folder created my Playwright.
-    - **Contingent on `jest-image-snapshot` not being able to be used**
+  - **Contingent on `jest-image-snapshot` not being able to be used**
 - [ ] Write a new GitHub workflow to generate supplemental PRs with updated snapshots whenever there are outdated snapshots.
 - [ ] Write a new GitHub workflow to generate the snapshot diffs and upload them as a comment in the PR with snapshot changes.
 - [ ] Create a scheduled GitHub action to clean the repository history of snapshot images older than a month in age outside of the `main` branch.
-    - I tried searching for prior art here and there isn't much aside from how to completely remove a directory or file from history (usually because something illegal or secret was committed). I think `git filter-branch` is perfect for this though:
-    ```bash
-    git filter-branch --prune-empty --tree-filter './bin/clean_historical_snapshots.sh' HEAD
-    ```
-    But the devil's the details... The implementation of `clean_historical_snapshots.sh` will take some care and frankly there will need to be some stateful file hashes written to a temporary directory to be used by the script to skip current snapshots from deletion. We'll also want to establish a pattern for the snapshot directory names that can be easily followed for this purpose.
-    - **Low priority, can be delayed up to a month or longer; really it can be delayed until we notice a problem with the repository size.**
+  - I tried searching for prior art here and there isn't much aside from how to completely remove a directory or file from history (usually because something illegal or secret was committed). I think `git filter-branch` is perfect for this though:
+  ```bash
+  git filter-branch --prune-empty --tree-filter './bin/clean_historical_snapshots.sh' HEAD
+  ```
+  But the devil's the details... The implementation of `clean_historical_snapshots.sh` will take some care and frankly there will need to be some stateful file hashes written to a temporary directory to be used by the script to skip current snapshots from deletion. We'll also want to establish a pattern for the snapshot directory names that can be easily followed for this purpose.
+  - **Low priority, can be delayed up to a month or longer; really it can be delayed until we notice a problem with the repository size.**
 
 <hr />
 
 [^1]: I could be wrong about this. I tried searching around for it but couldn't find it and it was not included in the default set of allowances we got with out initial application as an OSS project.
-
 [^2]: There's very little information about this online so I suspect it's a _non-problem_ for the most part.
