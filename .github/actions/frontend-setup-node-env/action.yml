@@ -20,6 +20,7 @@ runs:
           ${{ runner.os }}-
 
     - uses: actions/setup-node@v2.5.1
+      working-directory: ./frontend
       with:
         node-version: 16
         cache: pnpm
