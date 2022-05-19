@@ -17,6 +17,9 @@ jobs:
   push:
     name: push
     runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./frontend
     environment:
       name: production
       url: https://search-prod.fauxpenverse.engineering
@@ -30,7 +33,7 @@ jobs:
 
       # build a new docker image and push it into the repository
       - name: docker build
-        uses: ./.github/actions/build
+        uses: ./.github/actions/frontend-build
         with:
           is_production: true
           AWS_REGION: ${{ secrets.AWS_REGION }}

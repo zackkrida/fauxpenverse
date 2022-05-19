@@ -169,7 +169,7 @@ We can periodically clean them up or create tickets to remove them after a featu
 
 ## Proof-of-concept
 
-[Link to `WordPress/fauxpenverse-frontend` PR](https://github.com/zackkrida/fauxpenverse-frontend/pull/1270)
+[Link to `zackkrida/fauxpenverse` PR](https://github.com/zackkrida/fauxpenverse-frontend/pull/1270)
 
 ## Disqualified alternatives
 

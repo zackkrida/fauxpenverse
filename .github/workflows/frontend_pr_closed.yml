@@ -4,11 +4,16 @@ on:
   pull_request:
     types:
       - closed
+    paths:
+      - 'frontend/**'
 
 jobs:
   clean-gh-pages:
     name: Clean Storybook and Tailwind preview
     runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./frontend
 
     steps:
       - uses: actions/checkout@v3
