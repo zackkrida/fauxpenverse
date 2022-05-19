@@ -14,12 +14,10 @@ jobs:
   types:
     name: Check types
     runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: ./frontend
 
     steps:
       - uses: actions/checkout@v2
+
       - name: Enter the frontend package
         run: |
           cd frontend
@@ -27,6 +25,7 @@ jobs:
       - uses: ./.github/actions/frontend-setup-node-env
 
       - name: Check types
+        working-directory: ./frontend
         run: pnpm types
 
   lint:
