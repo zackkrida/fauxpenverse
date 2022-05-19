@@ -20,6 +20,8 @@ jobs:
 
     steps:
       - uses: actions/checkout@v2
+        run: |
+          cd frontend
 
       - uses: ./.github/actions/frontend-setup-node-env
 
