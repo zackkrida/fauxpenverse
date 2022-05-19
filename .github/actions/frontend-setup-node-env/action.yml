@@ -12,7 +12,6 @@ runs:
     - uses: pnpm/action-setup@v2.2.1
 
     - name: Cache pnpm modules
-      working-directory: ./frontend
       uses: actions/cache@v2
       with:
         path: ~/.local/share/pnpm/store
@@ -29,12 +28,10 @@ runs:
           ./frontend/.npmrc
 
     - name: Install
-      working-directory: ./frontend
       if: inputs.install
       shell: bash
       run: "pnpm install"
 
     - name: Get locales
-      working-directory: ./frontend
       shell: bash
       run: "pnpm i18n"
