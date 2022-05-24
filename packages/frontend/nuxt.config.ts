@@ -2,7 +2,7 @@ import path from 'path'
 import fs from 'fs'
 
 import pkg from './package.json'
-import locales from './src/locales/scripts/valid-locales.json'
+import locales from './locales/scripts/valid-locales.json'
 
 import { VIEWPORTS } from './src/constants/screens'
 
